@@ -1,0 +1,142 @@
+<!--StAuth10244: I Nguyen Duc Long, 000837437 certify that this material is my original work. 
+    No other person's work has been used without due acknowledgement. I have not made my work available to anyone else.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React Basics</title>
+  
+    <link rel="canonical" href="https://v5.getbootstrap.com/docs/5.0/examples/carousel/">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css"
+      integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js"
+      integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/"
+      crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.1/css/all.css">
+    <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+</head>
+<body>
+    <div class="container mt-4 pt-4"> </div>
+
+    <script type="text/babel">
+        /*A coin component that is given its side to display via a prop (either heads or tails)*/
+        class CoinComponent extends React.Component{
+            render(){
+                return(
+                    <img src={"cent5_"+(this.props.stateCoin ? "head" : "tail")+".jpg"} 
+                        className="img-fluid img-thumbnail border-0" alt="..." />
+                )
+            }
+        }
+        /*A component that present the result (the number of heads and tails)*/
+        class HeadTailComponent extends React.Component{
+            render(){
+                return(
+                    <div className="row mt-3 text-center">
+                        <div className="col-sm-6 h3 font-weight-normal"><span className="heads">{this.props.head} </span> heads</div>
+                        <div className="col-sm-6 h3 font-weight-normal"><span className="tails">{this.props.tail} </span> tails</div>
+                    </div>
+                )
+            }
+        }
+        /*Main Component*/
+        class AppComponent extends React.Component{
+            constructor(props){
+                super(props);
+                this.state={
+                    numCoins: 1,    /*The number of coins*/
+                    mode: true,     /*mode=true: Fair. Otherwise, Biased*/
+                    stateCoins: [], /*The array of state of coins, data type: boolean. stateCoins[i] = true: tail. Otherwise, head*/
+                    head: 0,        /*The number of heads*/
+                    tail: 0         /*The number of tails*/
+                }
+            }
+            render(){
+                return(
+                    <div className="row">
+                        <div className="col-6 form-group mt-4 pt-4">
+                            <div className="container-fluid mb-4 mt-4 border border-dark rounded">
+                                <div className="row mt-2">
+                                    <div className="col-8 text-center h3">Number of coint</div>
+                                    <div className="col-2 text-center h3">{this.state.numCoins}</div>
+                                    <div className="container-fluid col-2">
+                                        <div className="row" style={{cursor: 'pointer'}} onClick={()=>{
+                                            /*Increase the number of coins*/
+                                            this.setState({numCoins: this.state.numCoins<=0 ? 1 : this.state.numCoins+1})
+                                        }}>
+                                            <div className="col-12 text-center">Δ</div>
+                                        </div>
+                                        <div className="row" style={{cursor: 'pointer'}} onClick={()=>{
+                                            /*Decrease the number of coins. Always equal 1 if numCoins <=1*/
+                                            this.setState({numCoins: this.state.numCoins<=1 ? 1 : this.state.numCoins-1})
+                                        }}>
+                                            <div className="col-12 text-center">∇</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="container-fluid mt-4 mb-4 border border-dark rounded">
+                                <div className="row pt-3 pb-3">
+                                    <div className="col-sm-6 text-center h3">Mode</div>
+                                    <div className="col-sm-6 text-center h3">{this.state.mode ? "Fair" : "Biased"}</div>
+                                </div>
+                                <div className="row pt-3 pb-3 mr-4 ml-4">
+                                    <button className="btn btn-warning btn-lg btn-block" type="button" onClick={()=>{
+                                        this.setState({mode: !this.state.mode})     /*change mode*/
+                                    }}>Change mode</button>
+                                </div>
+                            </div>
+                            <button type="button" onClick={()=>{    /*event flipping*/
+                                let _stateCoins = [];
+                                let heads = 0;
+                                let tails = 0;
+                                for (let index = 0; index < this.state.numCoins; index++){
+                                    let randomFlip = Math.random();
+                                    let randomFlip_50_50 = Math.round(randomFlip);      /*being flipped should be 50-50 if fair mode*/
+                                    let randomFlip_75_25 = Math.round(randomFlip*4);    /*being flipped should be 75-25 if biased mode*/
+                                    /*if biased mode, randomFlip_75_25 >= 1 (max=4) means 75% (head). Otherwise, <1 means 25% (tail)*/
+                                    let headOrTail = this.state.mode ? (randomFlip_50_50==1) : (randomFlip_75_25<1);
+                                    _stateCoins.push(headOrTail);
+                                    heads = headOrTail ? heads : (heads+1);
+                                    tails = headOrTail ? (tails+1) : tails;
+                                }
+                                this.setState({
+                                    stateCoins: _stateCoins,
+                                    head: heads,
+                                    tail: tails
+                                });
+                            }} className="btn btn-info btn-lg btn-block form-control form-control-lg border border-dark">Flip!</button>
+                            <div className="container">
+                                <div className="row">
+                                    <div className="col-12 text-left ml-4 mt-3 h3 font-weight-normal">Results</div>
+                                </div>
+                                <HeadTailComponent head={this.state.head} tail={this.state.tail}/>
+                            </div>
+                        </div>
+                        <div className="col-6 form-group mt-1 pt-1">
+                            <div className="container">
+                                <div className="row">
+                                    {this.state.stateCoins.length<=0 ? "" : this.state.stateCoins.map((stateCoin, count) => {
+                                        return(
+                                            <div className="col-sm-3" key={count}>
+                                                <CoinComponent stateCoin = {stateCoin}/>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+        };  /*end class*/
+        ReactDOM.render(<AppComponent/>, document.querySelector(".container"));
+    </script>
+</body>
+</html>
